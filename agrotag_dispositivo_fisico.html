@@ -1,0 +1,238 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:var(--font-sans);}
+.wrap{width:100%;background:var(--color-background-tertiary);border-radius:var(--border-radius-lg);padding:16px;display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:14px;}
+.card-title{font-size:11px;font-weight:500;color:var(--color-text-secondary);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px;}
+
+/* PLACA ESP32 */
+.board{background:#1a3a2a;border-radius:10px;padding:12px;position:relative;}
+.board-label{font-size:10px;color:#5aaa7a;letter-spacing:1px;margin-bottom:8px;font-family:monospace;}
+.pins-row{display:flex;justify-content:space-between;margin-bottom:6px;}
+.pin{width:10px;height:14px;background:#c8a800;border-radius:2px;}
+.chip-body-board{background:#2a5a3a;border-radius:6px;padding:8px;margin:4px 0;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;}
+.chip-text{font-size:9px;color:#7fd4a0;font-family:monospace;letter-spacing:1px;}
+.chip-big{font-size:11px;color:#aaffcc;font-weight:500;font-family:monospace;}
+.leds-row{display:flex;gap:8px;margin-top:6px;align-items:center;}
+.led{width:10px;height:10px;border-radius:50%;}
+.led-g{background:#00cc44;}
+.led-b{background:#0088ff;animation:blink-b 1s infinite;}
+.led-r{background:#333;}
+@keyframes blink-b{0%,100%{opacity:1}50%{opacity:0.2}}
+.ant{width:3px;height:18px;background:#c8a800;margin:0 auto;border-radius:1px;}
+.ant-top{width:14px;height:2px;background:#c8a800;margin:0 auto;}
+
+/* SENSORES */
+.sensor-block{border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:10px;margin-bottom:8px;position:relative;}
+.sensor-name{font-size:11px;font-weight:500;color:var(--color-text-primary);margin-bottom:2px;}
+.sensor-model{font-size:10px;color:var(--color-text-secondary);margin-bottom:6px;}
+.sensor-reading{font-size:20px;font-weight:500;color:var(--color-text-primary);}
+.sensor-unit{font-size:11px;color:var(--color-text-secondary);margin-left:2px;}
+.sensor-bar{height:4px;background:var(--color-background-secondary);border-radius:2px;margin-top:6px;overflow:hidden;}
+.sensor-fill{height:100%;border-radius:2px;transition:width 0.6s;}
+.cable{width:3px;height:20px;margin:0 auto;}
+.chip-component{background:var(--color-background-secondary);border:0.5px solid var(--color-border-secondary);border-radius:4px;padding:4px 8px;font-size:10px;font-family:monospace;color:var(--color-text-secondary);text-align:center;margin:2px 0;}
+
+/* STREAM */
+.stream-area{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:8px;height:160px;overflow-y:auto;font-family:monospace;font-size:11px;}
+.stream-line{padding:2px 0;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-secondary);line-height:1.5;}
+.stream-line.ok{color:var(--color-text-success);}
+.stream-line.warn{color:var(--color-text-warning);}
+.stream-line.err{color:var(--color-text-danger);}
+.stream-line.send{color:var(--color-text-info);}
+
+/* CONEXION */
+.conn-bar{grid-column:1/-1;background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);padding:12px;display:flex;align-items:center;gap:12px;}
+.conn-label{font-size:12px;color:var(--color-text-secondary);flex-shrink:0;}
+.conn-line{flex:1;height:2px;background:var(--color-background-secondary);border-radius:1px;position:relative;overflow:hidden;}
+.conn-packet{position:absolute;width:20px;height:100%;background:var(--color-text-info);border-radius:1px;animation:travel 1.2s linear infinite;}
+@keyframes travel{from{left:-20px}to{left:100%}}
+.conn-badge{font-size:11px;padding:3px 10px;border-radius:20px;background:var(--color-background-success);color:var(--color-text-success);flex-shrink:0;}
+.btn-connect{padding:6px 16px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary);font-size:12px;cursor:pointer;}
+.btn-connect.on{background:var(--color-background-danger);color:var(--color-text-danger);border-color:var(--color-border-danger);}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px;}
+.stat-box{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:8px;text-align:center;}
+.stat-val{font-size:18px;font-weight:500;color:var(--color-text-primary);}
+.stat-lbl{font-size:10px;color:var(--color-text-secondary);}
+</style>
+
+<h2 class="sr-only">Simulador del dispositivo físico AgroTag ESP32 conectado a AgroSense 360</h2>
+
+<div class="wrap">
+
+  <!-- PLACA ESP32 -->
+  <div class="card">
+    <div class="card-title">Dispositivo AgroTag — ESP32</div>
+    <div class="board">
+      <div class="board-label">ESP32-WROOM-32D</div>
+      <div class="pins-row" id="pinsTop">
+        <div class="pin"></div><div class="pin"></div><div class="pin"></div><div class="pin"></div>
+        <div class="pin"></div><div class="pin"></div><div class="pin"></div><div class="pin"></div>
+        <div class="pin"></div><div class="pin"></div>
+      </div>
+      <div class="chip-body-board">
+        <div class="ant-top"></div>
+        <div class="ant"></div>
+        <div class="chip-big">ESP32</div>
+        <div class="chip-text">AgroTag v2.1</div>
+        <div class="chip-text" id="boardStatus">INICIANDO...</div>
+      </div>
+      <div class="pins-row">
+        <div class="pin"></div><div class="pin"></div><div class="pin"></div><div class="pin"></div>
+        <div class="pin"></div><div class="pin"></div><div class="pin"></div><div class="pin"></div>
+        <div class="pin"></div><div class="pin"></div>
+      </div>
+      <div class="leds-row">
+        <div class="led led-g" id="ledPwr"></div>
+        <div class="led led-b" id="ledWifi"></div>
+        <div class="led led-r" id="ledAlerta"></div>
+        <span style="font-size:9px;color:#5aaa7a;font-family:monospace;">PWR · WIFI · ALERTA</span>
+      </div>
+    </div>
+
+    <div style="margin-top:12px;">
+      <div class="chip-component">GPS NEO-6M — pin GPIO 16/17</div>
+      <div class="cable" style="background:#e74c3c;"></div>
+      <div class="chip-component">DHT22 temp/humedad — pin GPIO 4</div>
+      <div class="cable" style="background:#3498db;"></div>
+      <div class="chip-component">MAX30102 pulso — I2C SDA/SCL</div>
+      <div class="cable" style="background:#2ecc71;"></div>
+      <div class="chip-component">Buzzer activo — pin GPIO 25</div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-box"><div class="stat-val" id="pktCount">0</div><div class="stat-lbl">paquetes</div></div>
+      <div class="stat-box"><div class="stat-val" id="uptime">0s</div><div class="stat-lbl">uptime</div></div>
+      <div class="stat-box"><div class="stat-val" id="batPct">85%</div><div class="stat-lbl">batería</div></div>
+    </div>
+  </div>
+
+  <!-- SENSORES + LOG -->
+  <div class="card">
+    <div class="card-title">Lecturas en tiempo real</div>
+
+    <div class="sensor-block">
+      <div class="sensor-name">Temperatura corporal</div>
+      <div class="sensor-model">DHT22 — pin GPIO 4</div>
+      <span class="sensor-reading" id="readTemp">38.4</span><span class="sensor-unit">°C</span>
+      <div class="sensor-bar"><div class="sensor-fill" id="barTemp" style="width:48%;background:#e67e22;"></div></div>
+    </div>
+
+    <div class="sensor-block">
+      <div class="sensor-name">Frecuencia cardíaca</div>
+      <div class="sensor-model">MAX30102 — I2C 0x57</div>
+      <span class="sensor-reading" id="readHR">62</span><span class="sensor-unit">bpm</span>
+      <div class="sensor-bar"><div class="sensor-fill" id="barHR" style="width:56%;background:#e74c3c;"></div></div>
+    </div>
+
+    <div class="sensor-block">
+      <div class="sensor-name">GPS — posición</div>
+      <div class="sensor-model">NEO-6M — UART 9600 baud</div>
+      <span class="sensor-reading" style="font-size:13px;" id="readGPS">37.5443°N / -4.8980°W</span>
+      <div class="sensor-bar"><div class="sensor-fill" id="barGPS" style="width:90%;background:#27ae60;"></div></div>
+    </div>
+
+    <div class="card-title" style="margin-top:10px;">Log del dispositivo</div>
+    <div class="stream-area" id="streamArea"></div>
+  </div>
+
+  <!-- BARRA DE CONEXIÓN -->
+  <div class="conn-bar">
+    <span class="conn-label">AgroTag</span>
+    <div class="conn-line"><div class="conn-packet" id="connPacket" style="display:none;"></div></div>
+    <span class="conn-label">AgroSense 360º</span>
+    <span class="conn-badge" id="connBadge" style="display:none;">Conectado</span>
+    <button class="btn-connect" id="btnConn" onclick="toggleConnect()">Conectar</button>
+  </div>
+
+</div>
+
+<script>
+let connected=false;
+let pkt=0;
+let up=0;
+let bat=85;
+let temp=38.4;
+let hr=62;
+let lat=37.5443;
+let lon=-4.898;
+let logLines=[];
+let alertActive=false;
+
+function ts(){return new Date().toLocaleTimeString('es-ES',{hour:'2-digit',minute:'2-digit',second:'2-digit'});}
+
+function addLog(msg,cls=''){
+  logLines.unshift({msg,cls});
+  if(logLines.length>30)logLines.pop();
+  const el=document.getElementById('streamArea');
+  el.innerHTML=logLines.map(l=>`<div class="stream-line ${l.cls}">[${ts()}] ${l.msg}</div>`).join('');
+}
+
+function toggleConnect(){
+  connected=!connected;
+  const btn=document.getElementById('btnConn');
+  const badge=document.getElementById('connBadge');
+  const pkt2=document.getElementById('connPacket');
+  if(connected){
+    btn.textContent='Desconectar';btn.classList.add('on');
+    badge.style.display='';pkt2.style.display='';
+    document.getElementById('boardStatus').textContent='CONECTADO';
+    addLog('Enlace MQTT establecido con AgroSense 360º','ok');
+    addLog('Topic: agrosense/telemetria/V-001','send');
+  } else {
+    btn.textContent='Conectar';btn.classList.remove('on');
+    badge.style.display='none';pkt2.style.display='none';
+    document.getElementById('boardStatus').textContent='DESCONECTADO';
+    addLog('Conexión cerrada','err');
+  }
+}
+
+function tick(){
+  up++;
+  bat=Math.max(0,+(bat-0.003).toFixed(1));
+  temp=+(Math.max(37.5,Math.min(41,temp+(Math.random()-0.5)*0.12))).toFixed(1);
+  hr=Math.round(Math.max(45,Math.min(110,hr+(Math.random()-0.5)*3)));
+  lat+=( Math.random()-0.5)*0.00004;
+  lon+=(Math.random()-0.5)*0.00004;
+
+  document.getElementById('uptime').textContent=up+'s';
+  document.getElementById('batPct').textContent=Math.round(bat)+'%';
+  document.getElementById('readTemp').textContent=temp;
+  document.getElementById('readHR').textContent=hr;
+  document.getElementById('readGPS').textContent=lat.toFixed(4)+'°N / '+lon.toFixed(4)+'°W';
+
+  const tPct=((temp-37)/4*100).toFixed(0);
+  const hPct=((hr-40)/70*100).toFixed(0);
+  document.getElementById('barTemp').style.width=tPct+'%';
+  document.getElementById('barHR').style.width=hPct+'%';
+  document.getElementById('barHR').style.background=hr>85?'#e74c3c':'#27ae60';
+  document.getElementById('barTemp').style.background=temp>39.2?'#e74c3c':'#e67e22';
+
+  const ledAlerta=document.getElementById('ledAlerta');
+  if(hr>85||temp>39.2){
+    ledAlerta.style.background='#ff3333';
+    if(!alertActive){alertActive=true;addLog('ALERTA: valores fuera de rango detectados','err');}
+  } else {
+    ledAlerta.style.background='#333';alertActive=false;
+  }
+
+  if(connected){
+    pkt++;
+    document.getElementById('pktCount').textContent=pkt;
+    if(pkt%3===0){
+      addLog(`PKT #${pkt} → {"hr":${hr},"t":${temp},"lat":${lat.toFixed(4)},"lon":${lon.toFixed(4)}}`, 'send');
+    }
+  } else {
+    if(up%5===0) addLog('Esperando conexión con AgroSense...','');
+  }
+}
+
+addLog('ESP32 AgroTag iniciando...','ok');
+addLog('GPS NEO-6M: fix adquirido — 9 satélites','ok');
+addLog('DHT22: sensor OK','ok');
+addLog('MAX30102: sensor OK','ok');
+addLog('Listo. Pulsa "Conectar" para enviar datos.','');
+setInterval(tick,1000);
+</script>
